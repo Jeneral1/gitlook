@@ -66,4 +66,16 @@ dependencies {
     androidTestImplementation ("androidx.compose.ui:ui-test-junit4:${rootProject.extra["compose_version"]}")
     debugImplementation ("androidx.compose.ui:ui-tooling:${rootProject.extra["compose_version"]}")
     debugImplementation ("androidx.compose.ui:ui-test-manifest:${rootProject.extra["compose_version"]}")
+
+    //Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
+    implementation("com.squareup.okhttp3:okhttp:4.9.3")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
+
+    //Paging
+    implementation("androidx.paging:paging-compose:1.0.0-alpha17")
+
+    //Library to Load Image from URL
+    implementation ("io.coil-kt:coil-compose:2.1.0")
 }

@@ -5,14 +5,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material3.*
@@ -21,11 +19,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.capitalize
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
@@ -37,6 +32,8 @@ import com.efs.git_look.screens.AnalyticsScreen
 import com.efs.git_look.screens.HomeScreen
 import com.efs.git_look.screens.SettingsScreen
 import com.efs.git_look.ui.theme.GitLookTheme
+import com.efs.git_look.viewModel.RepositorySearchVM
+import com.efs.git_look.viewModel.UserSearchVM
 import java.util.*
 
 /**
@@ -48,11 +45,13 @@ import java.util.*
  * application starts with MainActivity
  * */
 class MainActivity : ComponentActivity() {
+    private val userSearchVm: UserSearchVM by viewModels()
+    private val repoSearchVM: RepositorySearchVM by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             GitLookTheme {
-                MainScreen()
+                MainScreen(userSearchVm, repoSearchVM)
             }
         }
     }
@@ -60,16 +59,21 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(){
+fun MainScreen(userSearchVM: UserSearchVM, repoSearchVM: RepositorySearchVM){
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.background,
-        bottomBar = { BottomNav(navController = navController)}
+        bottomBar = { BottomNav(navController = navController)},
+        contentWindowInsets = ScaffoldDefaults.contentWindowInsets
     ) {
-        NavGraph(navController = navController, modifier = Modifier.padding(it))
+        Box (modifier = Modifier.padding(it)) {
+            NavGraph(navController = navController, userSearchVM, repoSearchVM)
+        }
     }
 }
 
@@ -94,13 +98,17 @@ sealed class BottomNavItem(val screen_route: String, val icon: Int, @StringRes v
  * @param navController
  */
 @Composable
-fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier){
+fun NavGraph(
+    navController: NavHostController,
+    userSearchVM: UserSearchVM,
+    repoSearchVM: RepositorySearchVM
+){
     NavHost(
         navController = navController,
         startDestination = BottomNavItem.Home.screen_route,
     ){
         composable(BottomNavItem.Home.screen_route){
-            HomeScreen(modifier = modifier)
+            HomeScreen(userSearchVM, repoSearchVM)
         }
         composable(BottomNavItem.Analytics.screen_route){
             AnalyticsScreen()
