@@ -17,6 +17,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import com.efs.git_look.BottomNav
 import com.efs.git_look.R
 import com.efs.git_look.viewModel.RepositorySearchVM
 import com.efs.git_look.viewModel.UserSearchVM
@@ -33,7 +35,13 @@ import com.efs.git_look.viewModel.UserSearchVM
  */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
-fun HomeScreen(userSearchVM: UserSearchVM, repoSearchVM: RepositorySearchVM , onUserItemClick: (String) -> Unit = {}, onRepoItemClick: (String) -> Unit = {} ) {
+fun HomeScreen(
+    navController: NavHostController,
+    userSearchVM: UserSearchVM,
+    repoSearchVM: RepositorySearchVM,
+    onUserItemClick: (String) -> Unit = {},
+    onRepoItemClick: (String, String) -> Unit = { s: String, s1: String -> }
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -50,6 +58,10 @@ fun HomeScreen(userSearchVM: UserSearchVM, repoSearchVM: RepositorySearchVM , on
                 actions = { Icon(painter = painterResource(id = R.drawable.notification), contentDescription = "Notification Icon") }
             )
         },
+        modifier = Modifier.fillMaxSize(),
+        containerColor = MaterialTheme.colorScheme.background,
+        bottomBar = { BottomNav(navController = navController) },
+        contentWindowInsets = ScaffoldDefaults.contentWindowInsets
     ) { it ->
 
         //val searchQuery by userSearchVM.queryy.collectAsState()
@@ -135,7 +147,8 @@ fun HomeScreen(userSearchVM: UserSearchVM, repoSearchVM: RepositorySearchVM , on
                         color = MaterialTheme.colorScheme.onSecondary
 
                     )
-                }
+                },
+                divider = {}
             ) {
                 Tab(selected = tabIndex==0,
                     text = { 

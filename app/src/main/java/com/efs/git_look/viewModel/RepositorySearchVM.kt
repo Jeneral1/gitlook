@@ -1,14 +1,16 @@
 package com.efs.git_look.viewModel
 
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import com.efs.git_look.model.Release
 import com.efs.git_look.model.RepositoriesSource
 import com.efs.git_look.model.Repository
 import com.efs.git_look.network.RetrofitClient
@@ -39,7 +41,7 @@ class RepositorySearchVM: ViewModel() {
 
     var query = mutableStateOf("")
     var isQuerying = mutableStateOf(false)
-    var repository: Flow<PagingData<Repository>> = Pager(PagingConfig(pageSize = 10)){
+    var repositories: Flow<PagingData<Repository>> = Pager(PagingConfig(pageSize = 10)){
         RepositoriesSource(query.value)
     }.flow.cachedIn(viewModelScope)
 
@@ -47,24 +49,26 @@ class RepositorySearchVM: ViewModel() {
         _isRefreshing.update { true }
         delay(2000)
         _isRefreshing.update { false }
-        repository = Pager(PagingConfig(pageSize = 20)){
+        repositories = Pager(PagingConfig(pageSize = 20)){
             RepositoriesSource(query.value)
         }.flow.cachedIn(viewModelScope)
     }
 
+    var repository by mutableStateOf<Repository?>(null)
+        private set
+    var errorMessage: String by mutableStateOf("")
 
-    private val _langList = mutableStateListOf<String>()
-    val langList: List<String>
-        get() = _langList
-
-    fun getLanguages(url: String){
+    fun getRepository (url: String){
         viewModelScope.launch {
             try {
-                RetrofitClient.apiService.getLanguages(url).forEach {
-                    _langList.add(it.key)
+                val repo = RetrofitClient.apiService.getRepository(url).also {
+                    it.languages = RetrofitClient.apiService.getLanguages(it.languages_url)
+                    it.releases = RetrofitClient.apiService.getReleases("$url/releases")
                 }
+
+                repository = repo
             }catch (e: Exception){
-                e.printStackTrace()
+                e.localizedMessage?.let { errorMessage=it }
             }
         }
     }

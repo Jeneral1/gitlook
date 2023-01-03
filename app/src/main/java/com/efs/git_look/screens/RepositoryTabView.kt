@@ -2,6 +2,7 @@
 
 package com.efs.git_look.screens
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -37,12 +38,12 @@ import java.io.IOException
 @Composable
 fun ResultRepoListView(
     viewModel: RepositorySearchVM,
-    onItemClick: (String) -> Unit = {},
+    onItemClick: (String, String) -> Unit = { _: String, _: String -> },
 ){
     val isSearching by remember{ viewModel.isQuerying }
     if (isSearching){
         val listState = rememberLazyListState()
-        val repoList: Flow<PagingData<Repository>> = viewModel.repository
+        val repoList: Flow<PagingData<Repository>> = viewModel.repositories
         val repoListItems: LazyPagingItems<Repository> = repoList.collectAsLazyPagingItems()
 
         Column(
@@ -143,10 +144,13 @@ fun ResultRepoListView(
 @Composable
 fun RepoItemCard(
     repository: Repository,
-    onItemClick: (String) -> Unit
+    onItemClick: (String, String) -> Unit
 ){
     ElevatedCard(
-        onClick = { onItemClick(repository.url) },
+        onClick = { onItemClick(
+                repository.full_name.substringBefore("/"),
+            repository.full_name.substringAfter("/"))
+                  },
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
     ) {
@@ -180,10 +184,10 @@ fun RepoItemCard(
                             .wrapContentWidth(Alignment.Start)
                             .align(Alignment.CenterVertically)
                     )
-                    //Followers
+                    //Stars
                     val starsText = buildAnnotatedString {
                         appendInlineContent("starId")
-                        append("${repository.stargazers_count ?: 0}")
+                        append(" ${repository.stargazers_count ?: 0}")
                     }
                     val star = mapOf(
                         "starId" to InlineTextContent(
@@ -244,10 +248,6 @@ fun RepoItemCard(
 
 @Composable
 fun LanguageCards(languageMap: Map<String, Int>?){
-    /*LaunchedEffect(key1 = Unit){
-        vm.getLanguages(languagesUrl)
-    }*/
-
     val langList = mutableListOf<String>()
     languageMap?.forEach {
         langList.add(it.key)
@@ -271,7 +271,7 @@ fun LanguageCards(languageMap: Map<String, Int>?){
                     fontSize = 16.sp,
                     color = MaterialTheme.colorScheme.onSecondary,
                     modifier = Modifier.fillMaxWidth(),
-                    maxLines = 3,
+                    maxLines = 1,
                 )
             }
             Spacer(modifier = Modifier.width(4.dp))

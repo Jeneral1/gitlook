@@ -42,6 +42,8 @@ data class User(
     val public_repos: Int? = 0,
     @field: Json(name = "followers")
     val followers: Int? = 0,
+    @field: Json(name = "following")
+    val following: Int? = 0,
     @field: Json(name = "updated_at")
     val updated_at: String? = "",
 )

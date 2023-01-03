@@ -1,9 +1,7 @@
 package com.efs.git_look.network
 
-import com.efs.git_look.model.Repository
-import com.efs.git_look.model.RepositoryResponse
-import com.efs.git_look.model.User
-import com.efs.git_look.model.UserResponse
+import com.efs.git_look.BuildConfig
+import com.efs.git_look.model.*
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -77,6 +75,9 @@ interface RetrofitAPIEndpoint{
     suspend fun getLanguages(@Url url: String) : Map<String, Int>
 
 
+    @GET
+    suspend fun getReleases(@Url url: String) : List<Release>
+
 
 }
 
@@ -105,7 +106,7 @@ object RetrofitClient{
         val original = it.request()
         val req: Request = original.newBuilder()
             .header("Accept", "application/vnd.github+json")
-            .header("Authorization", "Bearer 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")
+            .header("Authorization", "Bearer ${BuildConfig.API_TOKEN}")
             .header("X-GitHub-Api-Version", "2022-11-28")
             .build()
         return@invoke it.proceed(req)

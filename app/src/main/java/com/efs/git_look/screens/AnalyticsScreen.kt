@@ -14,10 +14,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import com.efs.git_look.BottomNav
 import com.efs.git_look.R
 
 @Composable
-fun AnalyticsScreen() {
+fun AnalyticsScreen(navController: NavHostController) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -34,6 +36,10 @@ fun AnalyticsScreen() {
                 actions = { Icon(painter = painterResource(id = R.drawable.notification), contentDescription = "Notification Icon") }
             )
         },
+        modifier = Modifier.fillMaxSize(),
+        containerColor = MaterialTheme.colorScheme.background,
+        bottomBar = { BottomNav(navController = navController) },
+        contentWindowInsets = ScaffoldDefaults.contentWindowInsets
     ) {
         Column(
             modifier = Modifier

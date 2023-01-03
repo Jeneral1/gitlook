@@ -9,11 +9,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material3.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -24,17 +26,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.efs.git_look.screens.AnalyticsScreen
 import com.efs.git_look.screens.HomeScreen
 import com.efs.git_look.screens.SettingsScreen
+import com.efs.git_look.screens.ViewRepositoryScreen
 import com.efs.git_look.ui.theme.GitLookTheme
 import com.efs.git_look.viewModel.RepositorySearchVM
 import com.efs.git_look.viewModel.UserSearchVM
-import java.util.*
 
 /**
  * Application starts from [MainActivity] which inherits [ComponentActivity]
@@ -57,7 +61,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(userSearchVM: UserSearchVM, repoSearchVM: RepositorySearchVM){
     val navController = rememberNavController()
@@ -65,15 +68,10 @@ fun MainScreen(userSearchVM: UserSearchVM, repoSearchVM: RepositorySearchVM){
     val currentRoute = navBackStackEntry?.destination?.route
 
 
-    Scaffold(
+    Surface(
         modifier = Modifier.fillMaxSize(),
-        containerColor = MaterialTheme.colorScheme.background,
-        bottomBar = { BottomNav(navController = navController)},
-        contentWindowInsets = ScaffoldDefaults.contentWindowInsets
     ) {
-        Box (modifier = Modifier.padding(it)) {
-            NavGraph(navController = navController, userSearchVM, repoSearchVM)
-        }
+        NavGraph(navController = navController, userSearchVM, repoSearchVM)
     }
 }
 
@@ -108,13 +106,40 @@ fun NavGraph(
         startDestination = BottomNavItem.Home.screen_route,
     ){
         composable(BottomNavItem.Home.screen_route){
-            HomeScreen(userSearchVM, repoSearchVM)
+            HomeScreen(
+                navController,
+                userSearchVM,
+                repoSearchVM,
+                onRepoItemClick = { ownerId, repoName ->
+                    navController.navigate(
+                        "${GLScreens.ViewRepository.name}/$ownerId/$repoName"
+                    )
+                }
+            )
         }
         composable(BottomNavItem.Analytics.screen_route){
-            AnalyticsScreen()
+            AnalyticsScreen(navController)
         }
         composable(BottomNavItem.Settings.screen_route){
-            SettingsScreen()
+            SettingsScreen(navController)
+        }
+
+        composable(
+            "${GLScreens.ViewRepository.name}/{ownerId}/{repoName}",
+            arguments = listOf(
+                navArgument("ownerId"){type = NavType.StringType},
+                navArgument("repoName"){type = NavType.StringType}
+            )
+        ){
+            val ownerId = it.arguments?.getString("ownerId")
+            val repoName = it.arguments?.getString("repoName")
+            ViewRepositoryScreen(
+                repoSearchVM, ownerId = ownerId,
+                repoName = repoName,
+                onBackClick = {
+                    if (navController.previousBackStackEntry != null) navController.navigateUp()
+                }
+            )
         }
     }
 }

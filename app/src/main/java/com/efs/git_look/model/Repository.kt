@@ -46,7 +46,9 @@ data class Repository(
     @field: Json(name = "subscribers_count")
     val subscribers_count: Int? = 0,
 
-    var languages: Map<String, Int>? = mapOf(Pair("",0))
+    var languages: Map<String, Int>? = mapOf(Pair("",0)),
+
+    var releases: List<Release>? = listOf()
 )
 
 data class RepositoryResponse(
@@ -56,4 +58,13 @@ data class RepositoryResponse(
     val total_count: Int,
     @field: Json(name = "incomplete_results")
     val incomplete_results: Boolean = false
+)
+
+data class Release(
+    @field: Json(name = "url")
+    val url: String = "",
+    @field: Json(name = "name")
+    val name: String,
+    @field: Json(name = "published_at")
+    val published_at: String,
 )
