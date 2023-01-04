@@ -32,10 +32,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.efs.git_look.screens.AnalyticsScreen
-import com.efs.git_look.screens.HomeScreen
-import com.efs.git_look.screens.SettingsScreen
-import com.efs.git_look.screens.ViewRepositoryScreen
+import com.efs.git_look.screens.*
 import com.efs.git_look.ui.theme.GitLookTheme
 import com.efs.git_look.viewModel.RepositorySearchVM
 import com.efs.git_look.viewModel.UserSearchVM
@@ -62,7 +59,10 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(userSearchVM: UserSearchVM, repoSearchVM: RepositorySearchVM){
+fun MainScreen(
+    userSearchVM: UserSearchVM,
+    repoSearchVM: RepositorySearchVM,
+){
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -99,7 +99,7 @@ sealed class BottomNavItem(val screen_route: String, val icon: Int, @StringRes v
 fun NavGraph(
     navController: NavHostController,
     userSearchVM: UserSearchVM,
-    repoSearchVM: RepositorySearchVM
+    repoSearchVM: RepositorySearchVM,
 ){
     NavHost(
         navController = navController,
@@ -113,7 +113,19 @@ fun NavGraph(
                 onRepoItemClick = { ownerId, repoName ->
                     navController.navigate(
                         "${GLScreens.ViewRepository.name}/$ownerId/$repoName"
-                    )
+                    ){
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                onUserItemClick = { userId ->
+                    navController.navigate(
+                        "${GLScreens.ViewUser.name}/$userId"
+                    ){
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+
                 }
             )
         }
@@ -139,6 +151,29 @@ fun NavGraph(
                 onBackClick = {
                     if (navController.previousBackStackEntry != null) navController.navigateUp()
                 }
+            )
+        }
+
+        composable(
+            "${GLScreens.ViewUser.name}/{userId}",
+            arguments = listOf(
+                navArgument("userId"){type = NavType.StringType},
+            )
+        ){
+            val userId = it.arguments?.getString("userId")
+            ViewUserScreen(
+                userSearchVM, userId = userId,
+                onBackClick = {
+                    if (navController.previousBackStackEntry != null) navController.navigateUp()
+                },
+                onRepoItemClick = { ownerId, repoName ->
+                    navController.navigate(
+                        "${GLScreens.ViewRepository.name}/$ownerId/$repoName"
+                    ){
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
             )
         }
     }

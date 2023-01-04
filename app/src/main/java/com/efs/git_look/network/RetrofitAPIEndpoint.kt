@@ -79,6 +79,10 @@ interface RetrofitAPIEndpoint{
     suspend fun getReleases(@Url url: String) : List<Release>
 
 
+    @GET
+    suspend fun getUserRepositories(@Url url: String) : List<Repository>
+
+
 }
 
 /**

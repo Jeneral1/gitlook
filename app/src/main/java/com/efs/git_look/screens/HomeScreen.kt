@@ -40,8 +40,9 @@ fun HomeScreen(
     userSearchVM: UserSearchVM,
     repoSearchVM: RepositorySearchVM,
     onUserItemClick: (String) -> Unit = {},
-    onRepoItemClick: (String, String) -> Unit = { s: String, s1: String -> }
+    onRepoItemClick: (String, String) -> Unit = { _: String, _: String -> }
 ) {
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -64,8 +65,7 @@ fun HomeScreen(
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets
     ) { it ->
 
-        //val searchQuery by userSearchVM.queryy.collectAsState()
-        //val searchQuery by remember { userSearchVM.query}
+
         var tabIndex by remember { mutableStateOf(0) }
         var queryChanged by remember{ mutableStateOf(false) }
         val keyboardController = LocalSoftwareKeyboardController.current

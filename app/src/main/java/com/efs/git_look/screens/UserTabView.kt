@@ -55,7 +55,7 @@ fun ResultUserListView(
     val isSearching by remember{ viewModel.isQuerying }
     if (isSearching){
         val listState = rememberLazyListState()
-        val userList: Flow<PagingData<User>> = viewModel.user
+        val userList: Flow<PagingData<User>> = viewModel.users
         val userListItems: LazyPagingItems<User> = userList.collectAsLazyPagingItems()
 
         Column(
@@ -165,7 +165,8 @@ fun UserItemCard(
     onItemClick: (String) -> Unit
 ){
     ElevatedCard(
-        onClick = { onItemClick(user.url) },
+        onClick = { onItemClick(user.login)
+                  },
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp)
     ) {

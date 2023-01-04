@@ -46,6 +46,8 @@ data class User(
     val following: Int? = 0,
     @field: Json(name = "updated_at")
     val updated_at: String? = "",
+
+    var repos: List<Repository>? = listOf()
 )
 
 data class UserResponse(
